@@ -18,7 +18,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int selectedpage = 0;
   final _pageNo = [
-    FamilyPage(),
+    FamilyPage(brief_info_family: true,),
     MyItems(),
     ProfilePage(),
     //houses(),

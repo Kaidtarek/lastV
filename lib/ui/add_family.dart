@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kafil/Services/about_house.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Services/Family.dart';
@@ -18,6 +19,9 @@ class FamilyEditor extends StatefulWidget {
 
 class _FamilyEditorState extends State<FamilyEditor> {
   final _kidKey = GlobalKey<FormState>();
+
+  String? btn1SelectedValue;
+  TextEditingController family_needController = TextEditingController();
   TextEditingController familyNameController = TextEditingController();
   TextEditingController fatherNameController = TextEditingController();
   TextEditingController motherNameController = TextEditingController();
@@ -37,11 +41,13 @@ class _FamilyEditorState extends State<FamilyEditor> {
     Family? init = widget.initialFamily;
     if (init != null) {
       print("it's not null");
+      selectedHouseType = init.house_type;
       familyNameController = TextEditingController(text: init.family_name);
       fatherNameController = TextEditingController(text: init.father_name);
       motherNameController = TextEditingController(text: init.mother_name);
       fatherSickController = TextEditingController(text: init.father_sick);
       motherSickController = TextEditingController(text: init.mother_sick);
+      family_needController = TextEditingController(text: init.family_need);
       _selectedloc = init.location;
       fatherInLife = init.fatherInLife;
       motherInLife = init.motherInLife;
@@ -96,7 +102,13 @@ class _FamilyEditorState extends State<FamilyEditor> {
 
   void saveFamily(bool edit) {
     print("this is kids $kids");
+
     final Family newFamily = Family(
+      life_formula_inHouse: selectLifeFormula ?? '',
+      family_need: family_needController.text,
+      gaz_power: selectedGazPower ?? '',
+      elc_power: selectedElcPower ?? '',
+      house_type: selectedHouseType ?? '',
       family_name: familyNameController.text,
       father_name: fatherNameController.text,
       mother_name: motherNameController.text,
@@ -114,7 +126,7 @@ class _FamilyEditorState extends State<FamilyEditor> {
       print("m adding");
       newFamily.add_family();
     }
-
+    family_needController.clear();
     fatherNameController.clear();
     motherNameController.clear();
     fatherSickController.clear();
@@ -130,12 +142,7 @@ class _FamilyEditorState extends State<FamilyEditor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'اضافة عائلة',
-          style: TextStyle(
-              color: Color.fromARGB(255, 104, 58, 183),
-              fontWeight: FontWeight.bold),
-        ),
+        title: Text('اضافة عائلة'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -148,7 +155,7 @@ class _FamilyEditorState extends State<FamilyEditor> {
               ),
               TextField(
                 controller: familyNameController,
-                decoration: InputDecoration(labelText: 'اسم العائلة'),
+                decoration: InputDecoration(labelText: 'اسم العائلة '),
               ),
               SizedBox(
                 height: 18,
@@ -165,96 +172,65 @@ class _FamilyEditorState extends State<FamilyEditor> {
                       "الاحداثيات",
                       style: TextStyle(
                           fontSize: 18,
-                          color: Color.fromARGB(255, 218, 218, 218)),
+                          color: Color.fromARGB(255, 255, 255, 255)),
                     ),
                     IconButton(
                         onPressed: () {
                           showDialog(
                             context: context,
-                            builder: (context) => SingleChildScrollView(
-                              child: AlertDialog(
-                                title: Text(
-                                  "اختيار الاحداثيات",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold),
+                            builder: (context) => AlertDialog(
+                              title: Text("اختر الاحداثيات"),
+                              content: Container(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "قم بنسخ الاحداثيات و ضعها هنا",
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    TextButton(
+                                        onPressed: () async {
+                                          if (!await launchUrl(Uri.parse(
+                                              'https://www.google.com/maps'))) {
+                                            print("error");
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                      title: Text("خطأ"),
+                                                      content: Text(
+                                                          "أعد المحاولة أو اتصل بنا"),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: Text("حسنا"))
+                                                      ],
+                                                    ));
+                                          }
+                                        },
+                                        child: Text("افتح الخريطة")),
+                                    TextField(
+                                      decoration: InputDecoration(
+                                          hintText: 'الصق الاحداثيات هنا'),
+                                      controller: locationController,
+                                    )
+                                  ],
                                 ),
-                                content: Container(
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        color: Colors.black,
-                                        height: 2,
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text(
-                                        "افتح الخريطة ثم قم بنسخ الاحداثيات ",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      ElevatedButton(
-                                          style: ButtonStyle(
-                                              backgroundColor:
-                                                  MaterialStatePropertyAll(
-                                                      const Color.fromARGB(
-                                                          255, 7, 255, 181))),
-                                          onPressed: () async {
-                                            if (!await launchUrl(Uri.parse(
-                                                'https://www.google.com/maps'))) {
-                                              print("error");
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (context) =>
-                                                      AlertDialog(
-                                                        title: Text("error"),
-                                                        content: Text(
-                                                            "error opening the map"),
-                                                        actions: [
-                                                          TextButton(
-                                                              onPressed: () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                              },
-                                                              child: Text("OK"))
-                                                        ],
-                                                      ));
-                                            }
-                                          },
-                                          child: Text(
-                                            "فتح الخريطة",
-                                            style: TextStyle(
-                                                fontSize: 23,
-                                                fontWeight: FontWeight.bold),
-                                          )),
-                                      SizedBox(
-                                        height: 50,
-                                      ),
-                                      TextField(
-                                        textAlign: TextAlign.right,
-                                        decoration: InputDecoration(
-                                            hintText: 'الصق هنا الاحداثيات'),
-                                        controller: locationController,
-                                      )
-                                    ],
-                                  ),
-                                  width: 300,
-                                  height: 300,
-                                ),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _selectedloc =
-                                              locationController.text;
-                                        });
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text("حفظ"))
-                                ],
+                                width: 300,
+                                height: 300,
                               ),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedloc = locationController.text;
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text("حفظ"))
+                              ],
                             ),
                           );
                         },
@@ -263,7 +239,7 @@ class _FamilyEditorState extends State<FamilyEditor> {
                 ),
               ),
               (_selectedloc != "")
-                  ? Text("Location is :   ' $_selectedloc '")
+                  ? Text("الاحداثيات هي : $_selectedloc")
                   : SizedBox(
                       height: 0,
                     ),
@@ -276,11 +252,11 @@ class _FamilyEditorState extends State<FamilyEditor> {
               ),
               TextField(
                 controller: fatherNameController,
-                decoration: InputDecoration(labelText: 'الاسم'),
+                decoration: InputDecoration(labelText: 'اسم الأب'),
               ),
               Row(
                 children: [
-                  Text("هل الأب على قيد الحياة"),
+                  Text('هل الأب على قيد الحياة'),
                   Checkbox(
                     value: fatherInLife,
                     onChanged: (value) {
@@ -294,7 +270,7 @@ class _FamilyEditorState extends State<FamilyEditor> {
               fatherInLife
                   ? TextField(
                       controller: fatherSickController,
-                      decoration: InputDecoration(labelText: 'مرض الأب'),
+                      decoration: InputDecoration(labelText: 'المرض'),
                     )
                   : SizedBox(
                       height: 0,
@@ -324,12 +300,92 @@ class _FamilyEditorState extends State<FamilyEditor> {
               motherInLife
                   ? TextField(
                       controller: motherSickController,
-                      decoration: InputDecoration(labelText: 'مرض الأم'),
+                      decoration: InputDecoration(labelText: 'المرض'),
                     )
                   : SizedBox(
                       height: 0,
                     ),
               SizedBox(height: 16.0),
+              TextField(
+                controller: family_needController,
+                decoration: InputDecoration(labelText: 'احتياجات العائلة'),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
+                child: SingleChildScrollView(
+                  child: Card(
+                    
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text('نوعية المنزل:'),
+                          trailing: DropdownButton<String>(
+                            hint: Text("اختر من هنا"),
+                            value: selectedHouseType,
+                            items: buildHouseTypeDropdownItems(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                selectedHouseType = value;
+                              });
+                            },
+                          ),
+                        ),
+                        Container(
+                          color: Colors.deepPurple,
+                          height: 2,
+                        ),
+                        ListTile(
+                          title: Text("elctric",style: TextStyle(fontSize: 10),),
+                          trailing: DropdownButton(
+                              value: selectedElcPower,
+                              hint: Text("اختر من هنا "),
+                              items: buildElcTypeDropDownItems(),
+                              onChanged: (String? newvalue) {
+                                setState(() {
+                                  selectedElcPower = newvalue;
+                                });
+                              }),
+                        ),
+                        Container(
+                          color: Colors.deepPurple,
+                          height: 2,
+                        ),
+                        SizedBox(height: 16.0),
+                        ListTile(
+                          title: Text('الغاز'),
+                          
+                          trailing: DropdownButton(
+                            hint: Text('اختر نوع',style: TextStyle(fontSize: 10),),
+                              value: selectedGazPower,
+                              items: buildgazTypePowerItems(),
+                              onChanged: (String? value) {
+                                setState(() {
+                                  selectedGazPower = value;
+                                });
+                              }),
+                        ),
+                        Container(
+                          color: Colors.deepPurple,
+                          height: 2,
+                        ),
+                        ListTile(
+                          title: Expanded(child: Text('نوعية ملكية المنزل')),
+                          trailing: DropdownButton(
+                              value: selectLifeFormula,
+                              hint: Text('اختر نوعية الملكية',style: TextStyle(fontSize: 10),),
+                              items: buildLifeInHouseItem(),
+                              onChanged: (String? newitem) {
+                                setState(() {
+                                  selectLifeFormula = newitem;
+                                });
+                              }),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               Text(
                 'الأطفال',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -339,123 +395,87 @@ class _FamilyEditorState extends State<FamilyEditor> {
                 itemCount: kids.length,
                 itemBuilder: (context, index) {
                   final kid = kids[index];
-                  return Card(
-                    child: ListTile(
-                      title: Text(
-                        kid.name,textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      subtitle: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          TextButton(
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                          title: Text(
-                                            'معلومات الطفل',
-                                            style: TextStyle(
-                                              color: Colors.deepPurple,
-                                                fontWeight: FontWeight.w800),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          content: SingleChildScrollView(
-                                            child: Column(
-                                              children: [
-                                                Text("الاسم: ${kid.name}",
-                                                    style: TextStyle(fontWeight:FontWeight.w500)),
-                                                Text(
-                                                  "العمر: ${kid.age}",textAlign: TextAlign.start,style: TextStyle(fontWeight:FontWeight.w500)
-                                                ),
-                                                Text("العمل / الدراسة: ${kid.work}  ",
-                                                    style: TextStyle(fontWeight:FontWeight.w500)),
-                                                Text("المرض: ${kid.sick}  ",
-                                                    style: TextStyle(fontWeight:FontWeight.w500)),
-                                              ],
-                                            ),
-                                          ),
-                                        ));
-                              },
-                              child: Icon(Icons.info_outline)),
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  kids.removeAt(index);
-                                });
-                              },
-                              icon: Icon(Icons.delete,color: Colors.deepOrange,)),
-                          IconButton(
-                            icon: Icon(Icons.edit),
+                  return ListTile(
+                    title: Text(kid.name),
+                    subtitle: Row(
+                      children: [
+                        Text(
+                            'العمر: ${kid.age} العمل: ${kid.work} المرض: ${kid.sick}'),
+                        IconButton(
                             onPressed: () {
-                              kidsNameController.text = kid.name;
-                              kidsAgeController.text = kid.age.toString();
-                              kidsWorkController.text = kid.work;
-                              kidsSickController.text = kid.sick;
-
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('تعديل معلومات الطفل'),
-                                    content: SingleChildScrollView(
-                                      child: Column(
-                                        children: [
-                                          TextField(
-                                            controller: kidsNameController,
-                                            decoration: InputDecoration(
-                                                labelText: 'الاسم'),
-                                          ),
-                                          TextField(
-                                            controller: kidsAgeController,
-                                            decoration: InputDecoration(
-                                                labelText: 'العمر'),
-                                            keyboardType: TextInputType.number,
-                                          ),
-                                          TextField(
-                                            controller: kidsWorkController,
-                                            decoration: InputDecoration(
-                                                labelText: 'العمل'),
-                                          ),
-                                          TextField(
-                                            controller: kidsSickController,
-                                            decoration: InputDecoration(
-                                                labelText: 'المرض'),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        child: Text('الغاء'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: Text('حفظ'),
-                                        onPressed: () {
-                                          editKid(index);
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
+                              setState(() {
+                                kids.removeAt(index);
+                              });
                             },
-                          ),
-                        ],
-                      ),
+                            icon: Icon(Icons.delete)),
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            kidsNameController.text = kid.name;
+                            kidsAgeController.text = kid.age.toString();
+                            kidsWorkController.text = kid.work;
+                            kidsSickController.text = kid.sick;
+
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('تعديل المعلومات'),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      children: [
+                                        TextField(
+                                          controller: kidsNameController,
+                                          decoration: InputDecoration(
+                                              labelText: 'الاسم'),
+                                        ),
+                                        TextField(
+                                          controller: kidsAgeController,
+                                          decoration:
+                                              InputDecoration(labelText: 'العمر'),
+                                          keyboardType: TextInputType.number,
+                                        ),
+                                        TextField(
+                                          controller: kidsWorkController,
+                                          decoration: InputDecoration(
+                                              labelText: 'دراسة/عمل'),
+                                        ),
+                                        TextField(
+                                          controller: kidsSickController,
+                                          decoration: InputDecoration(
+                                              labelText: 'المرض'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      child: Text('الغاء'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text('حفظ'),
+                                      onPressed: () {
+                                        editKid(index);
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   );
                 },
               ),
               SizedBox(height: 16.0),
               Text(
-                'اضافة طفل الى البيانات',
+                'اضافة طفل ',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Form(
@@ -480,7 +500,7 @@ class _FamilyEditorState extends State<FamilyEditor> {
                           return null;
                         },
                         controller: kidsAgeController,
-                        decoration: InputDecoration(labelText: 'الهمر'),
+                        decoration: InputDecoration(labelText: 'العمر'),
                         keyboardType: TextInputType.number,
                       ),
                       TextFormField(
@@ -491,7 +511,7 @@ class _FamilyEditorState extends State<FamilyEditor> {
                           return null;
                         },
                         controller: kidsWorkController,
-                        decoration: InputDecoration(labelText: 'العمل'),
+                        decoration: InputDecoration(labelText: 'العمل / الدراسة'),
                       ),
                       TextFormField(
                         validator: (value) {
@@ -512,8 +532,8 @@ class _FamilyEditorState extends State<FamilyEditor> {
               SizedBox(height: 16.0),
               ElevatedButton(
                 child: Text(widget.initialFamily == null
-                    ? 'Add the Family'
-                    : 'Save edits'),
+                    ? 'اضافة العائلة'
+                    : 'حفظ العائلة'),
                 onPressed: () {
                   if (widget.initialFamily == null) {
                     saveFamily(false);
