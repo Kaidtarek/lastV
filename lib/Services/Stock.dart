@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'Chips_module.dart';
 
 class Stock {
@@ -88,6 +87,7 @@ Future<void> fetchAndAddProductsToProvider(
       final List<CustomStock> products = querySnapshot.docs.map((doc) {
         final data = doc.data();
         return CustomStock(
+          doc_id: doc.id.toString(),
           s: Stock(
               data['Product_name'],
               data['exp_date'].toDate(),
@@ -99,8 +99,8 @@ Future<void> fetchAndAddProductsToProvider(
         );
       }).toList();
 
-        ref.read(choosedProductProvider.notifier).updatestate(products);
-      print(ref.read(choosedProductProvider).length); 
+      ref.read(choosedProductProvider.notifier).updatestate(products);
+      print(ref.read(choosedProductProvider).length);
     });
   } catch (e) {
     showDialog(

@@ -78,13 +78,13 @@ class _GetFamiliesState extends State<GetFamilies> {
                 if (snapshot.data!.size == 0) {
                   return const Center(child: Text('No families found'));
                 }
+                
 
                 return ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (BuildContext context, int index) {
                     DocumentSnapshot document = snapshot.data!.docs[index];
                     String familyId = document.id;
-
                     return FutureBuilder<List<Kids>>(
                       future: change(document, familyId),
                       builder: (BuildContext context,

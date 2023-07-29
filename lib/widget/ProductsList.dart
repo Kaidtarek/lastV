@@ -25,18 +25,21 @@ class ProductList extends ConsumerWidget {
       ),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: Fproducts.length,
+        itemCount: products.length,
         itemBuilder: (context, index) {
-          return Chip(
-            label: Text(Fproducts[index].s.product_name +
-                " ${Fproducts[index].consumed} " +
-                Fproducts[index].s.unit),
+          if (products[index].consumed != 0) {
+            return Chip(
+            label: Text(products[index].s.product_name +
+                " ${products[index].consumed} " +
+                products[index].s.unit),
             backgroundColor: Colors.white,
             deleteIcon: Icon(Icons.close),
             onDeleted: () {
-              ref.read(choosedProductProvider.notifier).removeProduct(index);
+              ref.read(choosedProductProvider.notifier).reset(index);
             },
           );
+          }
+          
         },
       ),
     );

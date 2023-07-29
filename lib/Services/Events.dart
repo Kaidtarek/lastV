@@ -18,12 +18,12 @@ class Events {
     return {'name': name, 'color': color.value.toRadixString(16), 'icon': icon};
   }
 
-  Future<void> add_family(String fam_name, List<String> products) async {
+  Future<void> add_family(String fam_name, String doc_id, String fam_id, List<String> products) async {
     db
         .collection('Events')
         .doc(doc_id)
         .collection('families')
-        .add({'family_name': fam_name, 'products': products});
+        .add({'family_name': fam_name, 'doc_id' :fam_id,'products': products});
   }
 
   Future<void> add_event() async {

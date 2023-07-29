@@ -31,17 +31,26 @@ class choosedProductNotifier extends StateNotifier<List<CustomStock>> {
   }
 
   void updatestate(List<CustomStock> newList) {
-    state = newList; 
+    state = newList;
   }
 
-  void refresh( int index, double quantity) {
+  void refresh(int index, double quantity) {
     state[index].edit(quantity);
+    state = List.from(state);
+  }
+
+  void reset(int index) {
+    state[index].reset();
+    state = List.from(state);
+  }
+
+  void notify() {
     state = state;
-  
   }
 
   void removeProduct(int index) {
-    state = List.from(state).removeAt(index);
+    state.removeAt(index);
+    state = List.from(state);
   }
 }
 
@@ -49,11 +58,21 @@ class CustomStock {
   Stock s;
   double available;
   double consumed;
+  String doc_id ; 
   CustomStock(
-      {required this.s, required this.available, required this.consumed});
+      { required this.s, required this.available, required this.consumed , required this.doc_id});
 
   void edit(double quantity) {
     this.available = available - quantity;
     consumed = consumed + quantity;
+  }
+
+  String to_String() {
+    return "${consumed} ${s.product_name} ${s.unit}"; 
+  }
+
+  void reset() {
+    available = available + consumed;
+    consumed = 0;
   }
 }

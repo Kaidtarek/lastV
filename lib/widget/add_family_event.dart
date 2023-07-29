@@ -22,7 +22,7 @@ class _AddFamilyEventState extends ConsumerState<AddFamilyEvent> {
     // TODO: implement initState
     super.initState();
     fetchAndAddProductsToProvider(ref, context);
-    print("i am rebulding add family page"); 
+    print("i am rebulding add family page");
   }
 
   @override
@@ -66,6 +66,7 @@ class _AddFamilyEventState extends ConsumerState<AddFamilyEvent> {
                   ),
                   Expanded(
                     child: ShowFamilies(
+                      doc_id: widget.e.doc_id,
                       Check_box: true,
                     ),
                   ),
@@ -74,10 +75,20 @@ class _AddFamilyEventState extends ConsumerState<AddFamilyEvent> {
                         if (selected_fam == null) {
                           print("error");
                         } else {
-                          widget.e.add_family(selected_fam!.family_name,
-                              ref.read(productProvider.notifier).state);
-                          Navigator.pop(context);
+                          final List<CustomStock> products =
+                              ref.read(choosedProductProvider);
+                          List<String> Fproducts = [];
+                          for (var product in products) {
+                            if (product.consumed != 0) {
+                              Fproducts.add(product.to_String());
+                              product.s.choose_p(product.doc_id, product.consumed) ; 
+                            }
+                          }
+
+                          widget.e
+                              .add_family(selected_fam!.family_name ,widget.e.doc_id, selected_fam!.doc_id,  Fproducts);
                           selected_fam = null;
+                          Navigator.pop(context);
                         }
                       },
                       child: Text(
