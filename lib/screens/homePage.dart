@@ -1,6 +1,8 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kafil/Services/Users.dart';
 import 'package:kafil/ui/stock.dart';
 import 'package:kafil/ui/camping.dart';
 import 'package:kafil/screens/houses.dart';
@@ -18,7 +20,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int selectedpage = 0;
   final _pageNo = [
-    FamilyPage(brief_info_family: true,),
+    FamilyPage(
+      brief_info_family: true,
+    ),
     MyItems(),
     ProfilePage(),
     //houses(),
@@ -31,6 +35,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Users.logout();
+                },
+                child: Text("الخروج"))
+          ],
           automaticallyImplyLeading: false,
           centerTitle: true,
           title: Text('Admin model'),
@@ -39,7 +50,10 @@ class _MyHomePageState extends State<MyHomePage> {
         bottomNavigationBar: ConvexAppBar(
           height: 80,
           items: [
-            TabItem(icon: Icons.family_restroom, title: 'العائلات' , ),
+            TabItem(
+              icon: Icons.family_restroom,
+              title: 'العائلات',
+            ),
             TabItem(icon: Icons.volunteer_activism_rounded, title: 'نشاطات'),
             TabItem(icon: Icons.group, title: 'الأعضاء'),
             TabItem(icon: Icons.forest, title: 'التخييمات'),

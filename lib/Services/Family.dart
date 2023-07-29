@@ -10,12 +10,12 @@ class Family {
   String mother_sick;
   late List<Kids> kids;
   String location;
- late String house_type;
- late String life_formula_inHouse;
- late String elc_power;
- late String gaz_power;
- late String family_need;
- late String doc_id ; 
+  late String house_type;
+  late String life_formula_inHouse;
+  late String elc_power;
+  late String gaz_power;
+  late String family_need;
+  late String doc_id;
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
   Family({
@@ -34,21 +34,20 @@ class Family {
     required this.motherInLife,
     required this.kids,
   });
-    Family.custom({
-    required this.family_name,
-    required this.location,
-    required this.father_name,
-    required this.mother_name,
-    required this.father_sick,
-    required this.mother_sick,
-    required this.fatherInLife,
-    required this.motherInLife,
-    required this.doc_id
-  });
+  Family.custom(
+      {required this.family_name,
+      required this.location,
+      required this.father_name,
+      required this.mother_name,
+      required this.father_sick,
+      required this.mother_sick,
+      required this.fatherInLife,
+      required this.motherInLife,
+      required this.doc_id});
   Map<String, dynamic> toMap() {
     return {
-      'life_formula_inHouse' : life_formula_inHouse,
-      'family_need' : family_need,
+      'life_formula_inHouse': life_formula_inHouse,
+      'family_need': family_need,
       'family_name': family_name,
       'location': location,
       'father_name': father_name,
@@ -57,9 +56,9 @@ class Family {
       'mother_name': mother_name,
       'mother_alive': motherInLife,
       'mother_sick': mother_sick,
-      'house_type' : house_type,
-      'elc_power' : elc_power,
-      'gaz_power' : gaz_power,
+      'house_type': house_type,
+      'elc_power': elc_power,
+      'gaz_power': gaz_power,
     };
   }
 
@@ -100,30 +99,24 @@ class Family {
     return true;
   }
 
-  static Future<void> delete_family(String doc) async {
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  static Future<void> delete_family(String familyDocId) async {
+    DocumentReference familyRef =
+        FirebaseFirestore.instance.collection('family').doc(familyDocId);
 
-    // Create a batched write to perform multiple operations atomically
-    final WriteBatch batch = firestore.batch();
+    try {
+      CollectionReference kidsRef = familyRef.collection('Kids');
 
-    final DocumentReference familyRef = firestore.collection('family').doc(doc);
+      QuerySnapshot kidsSnapshot = await kidsRef.get();
+      for (DocumentSnapshot kidDoc in kidsSnapshot.docs) {
+        await kidDoc.reference.delete();
+      }
 
-    final CollectionReference kidsRef = familyRef.collection('kids');
+      await familyRef.delete();
 
-    // Query and delete all documents within the kids subcollection
-    final QuerySnapshot kidsSnapshot = await kidsRef.get();
-    for (final DocumentSnapshot kidDoc in kidsSnapshot.docs) {
-      batch.delete(kidDoc.reference);
+      print('Family and kids successfully deleted!');
+    } catch (e) {
+      print('Error deleting family and kids: $e');
     }
-    // Delete the family document
-    batch.delete(familyRef);
-
-    // Get the kids subcollection reference
-
-    // Commit the batched write
-    await batch.commit();
-
-    print('Family and kids deleted successfully!');
   }
 }
 
