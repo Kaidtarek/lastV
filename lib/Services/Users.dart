@@ -9,7 +9,6 @@ class Users {
       // ignore: unused_local_variable
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: pwd);
-      
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         return 'No user found for that email.';
@@ -17,6 +16,10 @@ class Users {
         return 'Wrong password provided for that user.';
       }
     }
-    return 'succes'; 
+    return 'succes';
+  }
+
+  static Future<void> logout() async {
+    FirebaseAuth.instance.signOut();
   }
 }

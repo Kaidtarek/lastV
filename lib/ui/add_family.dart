@@ -399,8 +399,30 @@ class _FamilyEditorState extends State<FamilyEditor> {
                     title: Text(kid.name),
                     subtitle: Row(
                       children: [
-                        Text(
-                            'العمر: ${kid.age} العمل: ${kid.work} المرض: ${kid.sick}'),
+                        // Text(
+                        //     'العمر: ${kid.age}' 'العمل: ${kid.work}' 'المرض: ${kid.sick}'),
+                        IconButton(
+                            onPressed: () {
+                              showDialog(context: context, builder: (context){
+                                return AlertDialog(
+                                  title: Text('info',textAlign: TextAlign.center,),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 8,),
+                                        Container(color: const Color.fromARGB(113, 255, 86, 34),),
+                                        Text('الاسم : ${kid.name}'),
+                                        Text( 'العمر: ${kid.age}'),
+                                        Text('العمل: ${kid.work}'),
+                                        Text('المرض: ${kid.sick}'),
+                                        
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              });
+                            },
+                            icon: Icon(Icons.info)),
                         IconButton(
                             onPressed: () {
                               setState(() {

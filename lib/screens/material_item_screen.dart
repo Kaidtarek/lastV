@@ -6,7 +6,8 @@ import 'package:kafil/widget/stockwithSearch.dart';
 import '../widget/basics_fam_info.dart';
 
 class MaterialScreen extends StatelessWidget {
-  MaterialScreen({required this.titleController, required this.event});
+  MaterialScreen({required this.titleController, required this.event, required this.canto});
+  final bool canto;
   final String titleController;
   final Events event;
 
@@ -36,13 +37,17 @@ class MaterialScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      floatingActionButton: FloatingActionButton(
+      
+      floatingActionButton: canto ?
+      FloatingActionButton(
+        
         onPressed: () {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => AddFamilyEvent(e: event,)));
         },
-        child: Icon(Icons.add),
-      ),
+        
+        child:  Icon( Icons.add),
+      ) : Container(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(

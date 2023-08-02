@@ -25,7 +25,6 @@ class _welcom_empState extends State<welcom_emp> {
   final _pageNo = [
     action_items(),
     families_emp(),
-    members_emp(),
     home_of_fam_emp(),
     camping_emp(),
     Stock_emp(),
@@ -47,7 +46,6 @@ class _welcom_empState extends State<welcom_emp> {
             TabItem(icon: Icons.volunteer_activism_rounded, title: 'نشاطات'),
             TabItem(icon: Icons.family_restroom, title: 'العائلات'),
             TabItem(icon: Icons.group, title: 'الأعضاء'),
-            TabItem(icon: Icons.home, title: 'المنازل'),
             TabItem(icon: Icons.forest, title: 'التخييمات'),
             TabItem(icon: Icons.store, title: 'المخزن'),
           ],

@@ -8,13 +8,13 @@ class see_info extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Text('$itemName :')),
+        Expanded(child: Text('$itemName :',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),)),
         Expanded(
-            flex: 2,
+            
             child: Text(
               calledName.data.toString(),
               style: TextStyle(
-                  fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                  fontWeight: FontWeight.bold, color: Colors.deepPurple,fontSize: 20),
             )),
       ],
     );

@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: MediaQuery.of(context).size.width,
                   child: Center(
                     child: Text(
-                      "تسجيل الدخول",
+                      "تسجيل الدخول",textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 48,fontWeight: FontWeight.bold),
                     ),
                   ),

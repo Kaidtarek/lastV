@@ -6,7 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../Services/Employee.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({Key? key , required this.canto}) : super(key: key);
+  final canto;
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -66,6 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       icon:
                                           Icon(Icons.call, color: Colors.green),
                                     ),
+                                    widget.canto ?
                                     IconButton(
                                       icon: Icon(Icons.edit),
                                       onPressed: () {
@@ -80,7 +82,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                           },
                                         );
                                       },
-                                    ),
+                                    ) :Container(),
+                                    widget.canto ?
                                     IconButton(
                                         onPressed: () {
                                           Employee.delete_employee(document.id);
@@ -88,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         icon: Icon(
                                           Icons.delete,
                                           color: Colors.red,
-                                        ))
+                                        )) :Container()
                                   ],
                                 ),
                               ],
@@ -100,7 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: widget.canto ? FloatingActionButton(
         onPressed: () {
           // Show the add employee dialog
           showDialog(
@@ -111,7 +114,7 @@ class _ProfilePageState extends State<ProfilePage> {
           );
         },
         child: Image.asset('assets/add_employee.png'),
-      ),
+      ) : Container()
     );
   }
 }
@@ -123,43 +126,46 @@ class AddEmployeeDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Add Employee'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: nameController,
-            decoration: InputDecoration(labelText: 'Name'),
+    return SingleChildScrollView(
+      child: AlertDialog(
+        title: Text('Add Employee'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: 'Name'),
+            ),
+            TextField(
+              controller: ageController,
+              decoration: InputDecoration(labelText: 'Age'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: phoneController,
+              decoration: InputDecoration(labelText: 'Phone'),
+              keyboardType: TextInputType.phone,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Create a new Employee object
+              Employee employee = Employee(
+                name: nameController.text,
+                age: ageController.text ?? "",
+                phone: phoneController.text,
+              );
+    
+              employee.add_employee();
+              Navigator.pop(context);
+            },
+            child: Text('Add'),
           ),
-          TextField(
-            controller: ageController,
-            decoration: InputDecoration(labelText: 'Age'),
-            keyboardType: TextInputType.number,
-          ),
-          TextField(
-            controller: phoneController,
-            decoration: InputDecoration(labelText: 'Phone'),
-            keyboardType: TextInputType.phone,
-          ),
+          TextButton(onPressed: Navigator.of(context).pop, child: Text('exit'))
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            // Create a new Employee object
-            Employee employee = Employee(
-              name: nameController.text,
-              age: ageController.text ?? "",
-              phone: phoneController.text,
-            );
-
-            employee.add_employee();
-            Navigator.pop(context);
-          },
-          child: Text('Add'),
-        ),
-      ],
     );
   }
 }

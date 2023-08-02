@@ -1,4 +1,5 @@
 class Gotocamping {
+  String id;
   late String camping_name;
   late String place;
   late DateTime startDate;
@@ -7,6 +8,7 @@ class Gotocamping {
   late int num_employee;
 
   Gotocamping({
+     this.id = '', // Provide a default value for 'id'
     required this.camping_name,
     required this.num_employee,
     required this.num_ppl,
@@ -14,6 +16,9 @@ class Gotocamping {
     required this.startDate,
     required this.finishDate,
   });
+
+  // Getter for 'id'
+  String get getId => id;
 
   set setName(String name) {
     camping_name = name;

@@ -11,31 +11,38 @@ List<Widget> infoList(DocumentSnapshot document, AsyncSnapshot<List<Kids>> kidsS
       itemName: 'العائلة',
       calledName: Text(data['family_name']),
     ),
+    Container(height: 2,width: double.infinity, color: Colors.deepOrange,),
     see_info(
       itemName: 'عدد الأطفال',
       calledName: Text('${kidsSnapshot.data?.length ?? 0}'),
     ),
+    Container(height: 2,width: double.infinity, color: Colors.deepOrange,),
     see_info(
       itemName: 'نوعية ملكية المنزل',
       calledName: Text(data['life_formula_inHouse']),
     ),
+    Container(height: 2,width: double.infinity, color: Colors.deepOrange,),
     see_info(
       itemName: 'اسم الأب',
       calledName: Text(data['father_name']),
     ),
+    Container(height: 2,width: double.infinity, color: Colors.deepOrange,),
         see_info(
       itemName: 'اسم الأم',
       calledName: Text(data['mother_name']),
     ),
+    Container(height: 2,width: double.infinity, color: Colors.deepOrange,),
     see_info(
       itemName: 'نوع المنزل',
-      calledName: Text(data['house_type']),
+      calledName: Text(data['house_type'],textAlign: TextAlign.right,),
     ),
+    Container(height: 2,width: double.infinity, color: Colors.deepOrange,),
     
     see_info(
       itemName: 'الكهرباء',
       calledName: Text(data['elc_power']),
     ),
+    Container(height: 2,width: double.infinity, color: Colors.deepOrange,),
     see_info(
       itemName: 'الغاز',
       calledName: Text(data['gaz_power']),

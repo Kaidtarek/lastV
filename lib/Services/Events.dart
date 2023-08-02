@@ -29,4 +29,12 @@ class Events {
   Future<void> add_event() async {
     await db.collection('Events').add(this.toMap());
   }
+  
+   Future<void> deleteEvent() async {
+    try {
+      await FirebaseFirestore.instance.collection('Events').doc(doc_id).delete();
+    } catch (e) {
+      print('this error');
+    }
+  }
 }

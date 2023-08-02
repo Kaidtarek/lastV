@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kafil/ui/items.dart';
 
 class action_items extends StatelessWidget {
   const action_items({super.key});
@@ -6,7 +7,7 @@ class action_items extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: Text('action_items')),
+      body: SafeArea(child: MyItems(istheAdmin: false)),
     );
   }
 }

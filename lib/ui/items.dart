@@ -9,6 +9,8 @@ import 'add_family.dart';
 bool get = true;
 
 class MyItems extends StatefulWidget {
+  final istheAdmin;
+  MyItems({required this.istheAdmin});
   @override
   State<MyItems> createState() => _MyItemsState();
 }
@@ -20,88 +22,178 @@ class _MyItemsState extends State<MyItems> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Add Event",
-            style: TextStyle(color: Colors.teal, fontSize: 30),
-          ),
-          backgroundColor: Colors.white,
-          elevation: 0,
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            var newItem = await showDialog<Events>(
-              context: context,
-              builder: (BuildContext context) => ItemDialog(),
-            );
-          },
-          child: Image.asset('assets/add_item.png'),
-        ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: _event_stream,
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError) {
-              return const Text('Something went wrong');
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Loading");
-            }
-
-            return GridView(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Number of columns in the grid
-                mainAxisSpacing: 10.0, // Spacing between rows
-                crossAxisSpacing: 10.0, // Spacing between columns
-                childAspectRatio: 1.0, // Aspect ratio of grid items
-              ),
-              children: snapshot.data!.docs
-                  .map((DocumentSnapshot document) {
-                  
-                    Map<String, dynamic> data =
-                        document.data()! as Map<String, dynamic>;
-                    var color = int.parse("0x${data['color']}");
-                    Events e = Events(
-                        Color(color),
-                        data['icon'],
-                        data['name'] , 
-                        doc_id: document.id
-                        );
-                    return Card(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(
-                                  builder: (BuildContext Context) {
-                                return MaterialScreen(titleController: e.name , event : e);
-                              }));
-                            },
-                            icon: Icon(IconData(e.icon , fontFamily: 'MaterialIcons')),
-                            iconSize: 40,
-                            color: e.color,
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            e.name,
-                            style: TextStyle(
-                              color: e.color,
-                              fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: widget.istheAdmin
+            ? TextButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        title: Icon(
+                          Icons.help,
+                          size: 50,
+                          color: Colors.green,
+                        ),
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Center(
+                              child: Text(
+                                "التطوعات",
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 51, 73, 70),
+                                ),
+                              ),
                             ),
+                            SizedBox(height: 8),
+                            Text(
+                              "تستطيع هنا اضافة عدد لا نهائي من المساعدات استنادا على المنتوجات المتواجدة داخل المخزن",
+                              textAlign: TextAlign.right,
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          ElevatedButton(
+                            child: Text("OK"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
                           ),
                         ],
+                      );
+                    },
+                  );
+                },
+                child: Text('مساعدة'),
+              )
+            : Text("view"),
+        backgroundColor: Colors.white,
+        elevation: 0,
+      ),
+      floatingActionButton: widget.istheAdmin
+          ? FloatingActionButton(
+              onPressed: () async {
+                var newItem = await showDialog<Events>(
+                  context: context,
+                  builder: (BuildContext context) => ItemDialog(),
+                );
+              },
+              child: Image.asset('assets/add_item.png'),
+            )
+          : Container(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _event_stream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return const Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Text("Loading");
+          }
+
+          return GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 10.0,
+              crossAxisSpacing: 10.0,
+              childAspectRatio: 1.0,
+            ),
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              DocumentSnapshot document = snapshot.data!.docs[index];
+              Map<String, dynamic> data =
+                  document.data()! as Map<String, dynamic>;
+              var color = int.parse("0x${data['color']}");
+              Events e = Events(Color(color), data['icon'], data['name'],
+                  doc_id: document.id);
+
+              return Card(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext Context) {
+                              return MaterialScreen(
+                                  titleController: e.name,
+                                  event: e,
+                                  canto: widget.istheAdmin);
+                            },
+                          ),
+                        );
+                      },
+                      icon: Icon(IconData(e.icon, fontFamily: 'MaterialIcons')),
+                      iconSize: 40,
+                      color: e.color,
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      e.name,
+                      style: TextStyle(
+                        color: e.color,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  })
-                  .toList()
-                  .cast(),
-            );
-          },
-        ));
+                    ),
+                    // Add delete button for admin users
+                    if (widget.istheAdmin)
+                      widget.istheAdmin
+                          ? ElevatedButton(
+                              onPressed: () {
+                                // Show the delete confirmation dialog
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Delete item?'),
+                                      content: Text(
+                                          'Are you sure you want to delete this item?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            await e.deleteEvent();
+                                            // Call setState to trigger a rebuild of the UI
+                                            setState(() {});
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                          },
+                                          child: Text('Delete'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text("Delete"),
+                            )
+                          : Container(),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }
+//dddddddddd
 
 class ItemDialog extends StatefulWidget {
   @override
@@ -181,7 +273,7 @@ class _ItemDialogState extends State<ItemDialog> {
         TextButton(
           onPressed: () {
             String eventName = NameController.text;
-           print( selectedIcon.codePoint) ; 
+            print(selectedIcon.codePoint);
             Events e = Events(selectedColor, selectedIcon.codePoint, eventName);
             e.add_event();
             Navigator.pop(

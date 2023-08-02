@@ -6,7 +6,8 @@ import 'package:intl/intl.dart';
 import '../../../Services/Stock.dart';
 
 class My_stock extends StatefulWidget {
-  const My_stock({super.key});
+  const My_stock({super.key, required this.canto});
+  final bool canto;
 
   @override
   State<My_stock> createState() => _My_stockState();
@@ -20,156 +21,174 @@ class _My_stockState extends State<My_stock> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            "المستودع",
-            textAlign: TextAlign.right,
-            style: TextStyle(color: Colors.teal, fontSize: 30),
+        appBar: AppBar(
+          title: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              "المستودع",
+              textAlign: TextAlign.right,
+              style: TextStyle(color: Colors.teal, fontSize: 30),
+            ),
           ),
+          backgroundColor: Colors.white,
+          elevation: 0,
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: StreamBuilder<QuerySnapshot>(
-            stream: _product_straem,
-            builder:
-                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasError) {
-                return const Icon(
-                  Icons.error,
-                  color: Colors.red,
-                  size: 48,
-                );
-              }
+        body: SafeArea(
+          child: StreamBuilder<QuerySnapshot>(
+              stream: _product_straem,
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return const Icon(
+                    Icons.error,
+                    color: Colors.red,
+                    size: 48,
+                  );
+                }
 
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
 
-              return ListView(
-                children: snapshot.data!.docs
-                    .map((DocumentSnapshot document) {
-                      String Doc_id = document.reference.id;
-                      print("this is doc id : $Doc_id");
-                      Map<String, dynamic> data =
-                          document.data()! as Map<String, dynamic>;
-                      DateTime add_date = data['Add_date'].toDate();
-                      DateTime exp_date = data['exp_date'].toDate();
-                      Stock produit = Stock(data['Product_name'], exp_date,
-                          add_date, double.parse(data['Quantity'].toString()) , data['unit']);
+                return ListView(
+                  children: snapshot.data!.docs
+                      .map((DocumentSnapshot document) {
+                        String Doc_id = document.reference.id;
+                        print("this is doc id : $Doc_id");
+                        Map<String, dynamic> data =
+                            document.data() as Map<String, dynamic>? ?? {};
+                        DateTime add_date =
+                            (data['Add_date'] as Timestamp?)?.toDate() ??
+                                DateTime.now();
+                        DateTime exp_date =
+                            (data['exp_date'] as Timestamp?)?.toDate() ??
+                                DateTime.now();
+                        double quantity =
+                            (data['Quantity'] as num?)?.toDouble() ?? 0.0;
+                        String unit = data['unit'] ?? '';
 
-                      return Card(
-                        color: Colors.grey[400],
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  flex: 5,
-                                  child: ListTile(
-                                    title: Text(
-                                        "product : ${data['Product_name']}"),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          height: 4,
-                                        ),
-                                        Text("quanity : ${data['Quantity']} ${produit.unit}"),
-                                        SizedBox(
-                                          height: 4,
-                                        ),
-                                        Row(
-                                          children: [
-                                            Icon(Icons.access_time),
-                                            SizedBox(
-                                              width: 4,
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                    "the Added date in : ${DateFormat.yMMMd().format(produit.added_date)}",
-                                                  ),
-                                                  SizedBox(
-                                                    height: 2,
-                                                  ),
-                                                  Text(
-                                                    'the expiry date in : ${DateFormat.yMMMd().format(produit.expiry_date)}',
-                                                  )
-                                                ],
+                        Stock produit = Stock(
+                          data['Product_name'] ?? 'Unknown',
+                          exp_date,
+                          add_date,
+                          quantity,
+                          unit,
+                        );
+
+                        return Card(
+                          color: Colors.grey[400],
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 5,
+                                    child: ListTile(
+                                      title: Text(
+                                          "product : ${data['Product_name']}"),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            height: 4,
+                                          ),
+                                          Text(
+                                              "quanity : ${data['Quantity']} ${produit.unit}"),
+                                          SizedBox(
+                                            height: 4,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.access_time),
+                                              SizedBox(
+                                                width: 4,
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                              Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      "the Added date in : ${DateFormat.yMMMd().format(produit.added_date)}",
+                                                    ),
+                                                    SizedBox(
+                                                      height: 2,
+                                                    ),
+                                                    Text(
+                                                      'the expiry date in : ${DateFormat.yMMMd().format(produit.expiry_date)}',
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return EditProductDialog(
-                                                stock: produit,
-                                                doc_id: Doc_id,
-                                              );
-                                            },
-                                          );
-                                        },
-                                        icon: Icon(
-                                          Icons.edit_calendar_outlined,
-                                          size: 35,
-                                          color:
-                                              Color.fromARGB(255, 2, 115, 61),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          Stock.delete_product(Doc_id);
-                                        },
-                                        icon: Icon(
-                                          Icons.delete_forever_sharp,
-                                          size: 35,
-                                          color:
-                                              Color.fromARGB(255, 218, 82, 40),
-                                        ),
-                                      ),
-                                    ],
+                                  Expanded(
+                                    flex: 2,
+                                    child: widget.canto
+                                        ? Row(
+                                            children: [
+                                              IconButton(
+                                                onPressed: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return EditProductDialog(
+                                                        stock: produit,
+                                                        doc_id: Doc_id,
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                icon: Icon(
+                                                  Icons.edit_calendar_outlined,
+                                                  size: 35,
+                                                  color: Color.fromARGB(
+                                                      255, 2, 115, 61),
+                                                ),
+                                              ),
+                                              IconButton(
+                                                onPressed: () {
+                                                  Stock.delete_product(Doc_id);
+                                                },
+                                                icon: Icon(
+                                                  Icons.delete_forever_sharp,
+                                                  size: 35,
+                                                  color: Color.fromARGB(
+                                                      255, 218, 82, 40),
+                                                ),
+                                              )
+                                            ],
+                                          )
+                                        : Container(),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    })
-                    .toList()
-                    .cast(),
-              );
-            }),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return addProductDialog();
-            },
-          );
-        },
-        child: Icon(Icons.add),
-      ),
-    );
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      })
+                      .toList()
+                      .cast(),
+                );
+              }),
+        ),
+        floatingActionButton: widget.canto
+            ? FloatingActionButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return addProductDialog();
+                    },
+                  );
+                },
+                child: Icon(Icons.add),
+              )
+            : Container());
   }
 }
 
@@ -183,7 +202,7 @@ class EditProductDialog extends StatefulWidget {
 }
 
 class _EditProductDialogState extends State<EditProductDialog> {
-  String _selecteditem  ="unit" ; 
+  String _selecteditem = "unit";
   late TextEditingController nameController;
   late TextEditingController quantityController;
   late TextEditingController dateController;
@@ -194,12 +213,13 @@ class _EditProductDialogState extends State<EditProductDialog> {
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.stock.product_name);
-    quantityController = TextEditingController(text: widget.stock.quantity.toString());
+    quantityController =
+        TextEditingController(text: widget.stock.quantity.toString());
     selectedDate = widget.stock.expiry_date;
     dateController = TextEditingController(
         text: DateFormat.yMMMd().format(widget.stock.expiry_date));
   }
-  
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -223,56 +243,60 @@ class _EditProductDialogState extends State<EditProductDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'product name'),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: quantityController,
-                    decoration: InputDecoration(labelText: 'Quantity'),
-                  ),
+            controller: nameController,
+            decoration: InputDecoration(labelText: 'product name'),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: quantityController,
+                  decoration: InputDecoration(labelText: 'Quantity'),
                 ),
-                SizedBox(
-                  width: 60,
-                  child: DropdownButton(
-                      value: _selecteditem,
-                      items: [
-                        DropdownMenuItem(
-                          child: Text("kg"),
-                          value: "kg",
-                        ),
-                        DropdownMenuItem(
-                          child: Text("l"),
-                          value: "l",
-                        ),
-                        DropdownMenuItem(
-                          child: Text("unit"),
-                          value: "unit",
-                        ),
-                      ],
-                      onChanged: (index) {
-                        setState(() {
-                          _selecteditem = index!;
-                        });
-                      }),
-                )
-              ],
-            ),
-            TextField(
-              controller: dateController,
-              decoration: InputDecoration(labelText: 'expiry date'),
-              onTap: () => _selectDate(context),
-              readOnly: true,
-            ),
+              ),
+              SizedBox(
+                width: 60,
+                child: DropdownButton(
+                    value: _selecteditem,
+                    items: [
+                      DropdownMenuItem(
+                        child: Text("kg"),
+                        value: "kg",
+                      ),
+                      DropdownMenuItem(
+                        child: Text("l"),
+                        value: "l",
+                      ),
+                      DropdownMenuItem(
+                        child: Text("unit"),
+                        value: "unit",
+                      ),
+                    ],
+                    onChanged: (index) {
+                      setState(() {
+                        _selecteditem = index!;
+                      });
+                    }),
+              )
+            ],
+          ),
+          TextField(
+            controller: dateController,
+            decoration: InputDecoration(labelText: 'expiry date'),
+            onTap: () => _selectDate(context),
+            readOnly: true,
+          ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () {
-            Stock updateStock = Stock(nameController.text, selectedDate,
-                widget.stock.added_date, double.parse(quantityController.text) , _selecteditem );
+            Stock updateStock = Stock(
+                nameController.text,
+                selectedDate,
+                widget.stock.added_date,
+                double.parse(quantityController.text),
+                _selecteditem);
             updateStock.edit(widget.doc_id);
             Navigator.pop(context);
           },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kafil/ui/employee.dart';
 
 class home_of_fam_emp extends StatelessWidget {
   const home_of_fam_emp({super.key});
@@ -6,7 +7,7 @@ class home_of_fam_emp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: Text('home_of_fam_emp')),
+      body: SafeArea(child: ProfilePage(canto: false)),
     );
   }
 }

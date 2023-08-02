@@ -107,11 +107,18 @@ class _FamilyPageState extends State<FamilyPage> {
                                                 context: context,
                                                 builder:
                                                     (BuildContext context) {
-                                                  return AlertDialog(
-                                                    title: Column(
-                                                      children: infoList(
-                                                          document,
-                                                          kidsSnapshot),
+                                                  return SingleChildScrollView(
+                                                    child: AlertDialog(
+                                                      title: Column(
+                                                        children: infoList(
+                                                            document,
+                                                            kidsSnapshot),
+                                                      ),
+                                                      actions: [
+                                                        ElevatedButton(onPressed: (){
+                                                          Navigator.of(context).pop();
+                                                        }, child: Text('close',style: TextStyle(color:Colors.white),),style: ElevatedButton.styleFrom(primary: Color.fromARGB(122, 100, 27, 4)))
+                                                      ],
                                                     ),
                                                   );
                                                 },
