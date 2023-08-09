@@ -315,18 +315,18 @@ class _FamilyEditorState extends State<FamilyEditor> {
                     const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
                 child: SingleChildScrollView(
                   child: Card(
-                    
                     child: Column(
                       children: [
                         ListTile(
-                          title: Text('نوعية المنزل:'),
-                          trailing: DropdownButton<String>(
-                            hint: Text("اختر من هنا"),
+                          title: Text('نوعية المنزل:',textAlign: TextAlign.right,
+                          ),
+                          subtitle: DropdownButton(
                             value: selectedHouseType,
+                            hint: Text("اختر من هنا ",textAlign: TextAlign.right,),
                             items: buildHouseTypeDropdownItems(),
-                            onChanged: (String? value) {
+                            onChanged: (String? newvalue) {
                               setState(() {
-                                selectedHouseType = value;
+                                selectedHouseType = newvalue;
                               });
                             },
                           ),
@@ -336,16 +336,20 @@ class _FamilyEditorState extends State<FamilyEditor> {
                           height: 2,
                         ),
                         ListTile(
-                          title: Text("elctric",style: TextStyle(fontSize: 10),),
-                          trailing: DropdownButton(
-                              value: selectedElcPower,
-                              hint: Text("اختر من هنا "),
-                              items: buildElcTypeDropDownItems(),
-                              onChanged: (String? newvalue) {
-                                setState(() {
-                                  selectedElcPower = newvalue;
-                                });
-                              }),
+                          title: Text(
+                            "الكهرباء",textAlign: TextAlign.right,
+                            style: TextStyle(fontSize: 10),
+                          ),
+                          subtitle: DropdownButton(
+                            value: selectedElcPower,
+                            hint: Text("اختر من هنا ",textAlign: TextAlign.right,),
+                            items: buildElcTypeDropDownItems(),
+                            onChanged: (String? newvalue) {
+                              setState(() {
+                                selectedElcPower = newvalue;
+                              });
+                            },
+                          ),
                         ),
                         Container(
                           color: Colors.deepPurple,
@@ -353,17 +357,20 @@ class _FamilyEditorState extends State<FamilyEditor> {
                         ),
                         SizedBox(height: 16.0),
                         ListTile(
-                          title: Text('الغاز'),
-                          
-                          trailing: DropdownButton(
-                            hint: Text('اختر نوع',style: TextStyle(fontSize: 10),),
-                              value: selectedGazPower,
-                              items: buildgazTypePowerItems(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  selectedGazPower = value;
-                                });
-                              }),
+                          title: Text('الغاز',textAlign: TextAlign.right,),
+                          subtitle: DropdownButton(
+                            hint: Text(
+                              'اختر نوع',textAlign: TextAlign.right,
+                              style: TextStyle(fontSize: 10),
+                            ),
+                            value: selectedGazPower,
+                            items: buildgazTypePowerItems(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                selectedGazPower = value;
+                              });
+                            },
+                          ),
                         ),
                         Container(
                           color: Colors.deepPurple,
@@ -371,15 +378,20 @@ class _FamilyEditorState extends State<FamilyEditor> {
                         ),
                         ListTile(
                           title: Expanded(child: Text('نوعية ملكية المنزل')),
-                          trailing: DropdownButton(
-                              value: selectLifeFormula,
-                              hint: Text('اختر نوعية الملكية',style: TextStyle(fontSize: 10),),
-                              items: buildLifeInHouseItem(),
-                              onChanged: (String? newitem) {
-                                setState(() {
-                                  selectLifeFormula = newitem;
-                                });
-                              }),
+                          subtitle: DropdownButton(
+                            value: selectLifeFormula,
+                            hint: Text(
+                              
+                              'اختر نوعية الملكية',textAlign: TextAlign.right,
+                              style: TextStyle(fontSize: 10),
+                            ),
+                            items: buildLifeInHouseItem(),
+                            onChanged: (String? newitem) {
+                              setState(() {
+                                selectLifeFormula = newitem;
+                              });
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -399,28 +411,35 @@ class _FamilyEditorState extends State<FamilyEditor> {
                     title: Text(kid.name),
                     subtitle: Row(
                       children: [
-                        // Text(
-                        //     'العمر: ${kid.age}' 'العمل: ${kid.work}' 'المرض: ${kid.sick}'),
                         IconButton(
                             onPressed: () {
-                              showDialog(context: context, builder: (context){
-                                return AlertDialog(
-                                  title: Text('info',textAlign: TextAlign.center,),
-                                  content: SingleChildScrollView(
-                                    child: Column(
-                                      children: [
-                                        SizedBox(height: 8,),
-                                        Container(color: const Color.fromARGB(113, 255, 86, 34),),
-                                        Text('الاسم : ${kid.name}'),
-                                        Text( 'العمر: ${kid.age}'),
-                                        Text('العمل: ${kid.work}'),
-                                        Text('المرض: ${kid.sick}'),
-                                        
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              });
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text(
+                                        'info',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      content: SingleChildScrollView(
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 8,
+                                            ),
+                                            Container(
+                                              color: const Color.fromARGB(
+                                                  113, 255, 86, 34),
+                                            ),
+                                            Text('الاسم : ${kid.name}'),
+                                            Text('العمر: ${kid.age}'),
+                                            Text('العمل/الدراسة: ${kid.work}'),
+                                            Text('المرض: ${kid.sick}'),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  });
                             },
                             icon: Icon(Icons.info)),
                         IconButton(
@@ -453,8 +472,8 @@ class _FamilyEditorState extends State<FamilyEditor> {
                                         ),
                                         TextField(
                                           controller: kidsAgeController,
-                                          decoration:
-                                              InputDecoration(labelText: 'العمر'),
+                                          decoration: InputDecoration(
+                                              labelText: 'العمر'),
                                           keyboardType: TextInputType.number,
                                         ),
                                         TextField(
@@ -533,7 +552,8 @@ class _FamilyEditorState extends State<FamilyEditor> {
                           return null;
                         },
                         controller: kidsWorkController,
-                        decoration: InputDecoration(labelText: 'العمل / الدراسة'),
+                        decoration:
+                            InputDecoration(labelText: 'العمل / الدراسة'),
                       ),
                       TextFormField(
                         validator: (value) {

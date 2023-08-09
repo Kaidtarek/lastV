@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kafil/Services/Family.dart';
 import 'package:kafil/Services/info_list.dart';
 import 'package:kafil/ui/add_family.dart';
@@ -8,11 +9,13 @@ import 'package:url_launcher/url_launcher.dart';
 class FamilyPage extends StatefulWidget {
   FamilyPage({required this.brief_info_family});
   bool brief_info_family;
+
   @override
   State<FamilyPage> createState() => _FamilyPageState();
 }
 
 class _FamilyPageState extends State<FamilyPage> {
+  TextEditingController _searchController = TextEditingController();
   final Stream<QuerySnapshot> _familiesStream =
       FirebaseFirestore.instance.collection('family').snapshots();
 
@@ -46,6 +49,26 @@ class _FamilyPageState extends State<FamilyPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(
+                    () {}); // Trigger a rebuild when the search input changes
+              },
+              decoration: InputDecoration(
+                labelText: 'Search by Family Name',
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {});
+                  },
+                  icon: Icon(Icons.clear),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Text(
               "العائلات",
               style: TextStyle(fontSize: 35),
@@ -64,13 +87,20 @@ class _FamilyPageState extends State<FamilyPage> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (snapshot.data!.size == 0) {
+                List<QueryDocumentSnapshot> filteredDocs =
+                    snapshot.data!.docs.where((doc) {
+                  String familyName =
+                      (doc.data() as Map<String, dynamic>)['family_name'] ?? '';
+                  String searchQuery = _searchController.text.toLowerCase();
+                  return familyName.toLowerCase().contains(searchQuery);
+                }).toList();
+
+                if (filteredDocs.isEmpty) {
                   return const Center(child: Text('لايوجد عائلات'));
                 }
 
                 return ListView(
-                  children:
-                      snapshot.data!.docs.map((DocumentSnapshot document) {
+                  children: filteredDocs.map((DocumentSnapshot document) {
                     return FutureBuilder<List<Kids>>(
                       future: change(document),
                       builder: (BuildContext context,
@@ -115,9 +145,26 @@ class _FamilyPageState extends State<FamilyPage> {
                                                             kidsSnapshot),
                                                       ),
                                                       actions: [
-                                                        ElevatedButton(onPressed: (){
-                                                          Navigator.of(context).pop();
-                                                        }, child: Text('close',style: TextStyle(color:Colors.white),),style: ElevatedButton.styleFrom(primary: Color.fromARGB(122, 100, 27, 4)))
+                                                        ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            child: Text(
+                                                              'close',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white),
+                                                            ),
+                                                            style: ElevatedButton
+                                                                .styleFrom(
+                                                                    primary: Color
+                                                                        .fromARGB(
+                                                                            122,
+                                                                            100,
+                                                                            27,
+                                                                            4)))
                                                       ],
                                                     ),
                                                   );
@@ -129,30 +176,142 @@ class _FamilyPageState extends State<FamilyPage> {
                                           IconButton(
                                             icon: Icon(Icons.location_on),
                                             onPressed: () async {
-                                              final url =
+                                                                                             final url =
                                                   "https://www.google.com/maps/search/?api=1&query=${data['location']}";
                                               if (await canLaunch(url)) {
                                                 await launch(url);
                                               } else {
                                                 showDialog(
-                                                  context: context,
-                                                  builder: (context) =>
-                                                      AlertDialog(
-                                                    title: Text("Error"),
-                                                    content: Text(
-                                                        "خطأ في فتح الخريطة الرجاء المجاولة أو اتصل بنا "),
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 4),
+                                                    title: Icon(
+                                                      Icons.error_outline,
+                                                      size: 50,
+                                                      color: Color.fromARGB(
+                                                          255, 187, 75, 10),
+                                                    ),
+                                                    content: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Center(
+                                                          child: Text(
+                                                            "خطأ",
+                                                            style: TextStyle(
+                                                              fontSize: 25,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      51,
+                                                                      73,
+                                                                      70),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(height: 8),
+                                                        Text(
+                                                          "تعذر فتح خرائط جوجل على جهازك  يمكنك استعمل ايقونة نسخ الاحداثيات و البحث من خلال تطبيق الخرائط",
+                                                          textAlign:
+                                                              TextAlign.right,
+                                                        ),
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        Container(
+                                                          height: 2,
+                                                          width:
+                                                              double.infinity,
+                                                          color:
+                                                              Colors.deepPurple,
+                                                        ),
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceAround,
+                                                          children: [
+                                                            Card(
+                                                              color:
+                                                                  Colors.white,
+                                                              child: Column(
+                                                                children: [
+                                                                  ElevatedButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Clipboard.setData(ClipboardData(
+                                                                            text:
+                                                                                data['location']));
+
+                                                                        ScaffoldMessenger.of(context)
+                                                                            .showSnackBar(
+                                                                          SnackBar(
+                                                                              content: Text(
+                                                                            ' تم نسخ احداثيات عائلة ${data['family_name']}',
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                          )),
+                                                                        );
+                                                                      },
+                                                                      child:
+                                                                          Icon(
+                                                                        Icons
+                                                                            .copy,
+                                                                        color: Colors
+                                                                            .green,
+                                                                      ),
+                                                                      style: ButtonStyle(
+                                                                          elevation:
+                                                                              MaterialStateProperty.all<double?>(0.0))),
+                                                                  Text(
+                                                                      'copy  map')
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        Container(
+                                                          height: 2,
+                                                          width:
+                                                              double.infinity,
+                                                          color:
+                                                              Colors.deepPurple,
+                                                        ),
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                      ],
+                                                    ),
                                                     actions: [
-                                                      TextButton(
+                                                      ElevatedButton(
+                                                        child: Text("الرجوع"),
                                                         onPressed: () {
-                                                          Navigator.pop(
-                                                              context);
+                                                          Navigator.of(context)
+                                                              .pop();
                                                         },
-                                                        child: Text("حسنا"),
                                                       ),
                                                     ],
-                                                  ),
-                                                );
+                                                  );
+                                                },
+                                              );
                                               }
+
                                             },
                                           ),
                                           SizedBox(width: 4),
@@ -234,17 +393,146 @@ class _FamilyPageState extends State<FamilyPage> {
         ],
       ),
       floatingActionButton: widget.brief_info_family
-    ? FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => FamilyEditor()),
-          );
-        },
-        child: Icon(Icons.add),
-      )
-    : SizedBox(height: 5),
-
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FamilyEditor()),
+                );
+              },
+              child: Icon(Icons.add),
+            )
+          : SizedBox(height: 5),
     );
   }
 }
+// else
+// showDialog(
+//                                                 context: context,
+//                                                 builder:
+//                                                     (BuildContext context) {
+//                                                   return AlertDialog(
+//                                                     contentPadding:
+//                                                         EdgeInsets.symmetric(
+//                                                             horizontal: 8,
+//                                                             vertical: 4),
+//                                                     title: Icon(
+//                                                       Icons.error_outline,
+//                                                       size: 50,
+//                                                       color: Color.fromARGB(
+//                                                           255, 187, 75, 10),
+//                                                     ),
+//                                                     content: Column(
+//                                                       crossAxisAlignment:
+//                                                           CrossAxisAlignment
+//                                                               .start,
+//                                                       mainAxisSize:
+//                                                           MainAxisSize.min,
+//                                                       children: [
+//                                                         Center(
+//                                                           child: Text(
+//                                                             "خطأ",
+//                                                             style: TextStyle(
+//                                                               fontSize: 25,
+//                                                               fontWeight:
+//                                                                   FontWeight
+//                                                                       .bold,
+//                                                               color: Color
+//                                                                   .fromARGB(
+//                                                                       255,
+//                                                                       51,
+//                                                                       73,
+//                                                                       70),
+//                                                             ),
+//                                                           ),
+//                                                         ),
+//                                                         SizedBox(height: 8),
+//                                                         Text(
+//                                                           "تعذر فتح خرائط جوجل على جهازك  يمكنك استعمل ايقونة نسخ الاحداثيات و البحث من خلال تطبيق الخرائط",
+//                                                           textAlign:
+//                                                               TextAlign.right,
+//                                                         ),
+//                                                         SizedBox(
+//                                                           height: 10,
+//                                                         ),
+//                                                         Container(
+//                                                           height: 2,
+//                                                           width:
+//                                                               double.infinity,
+//                                                           color:
+//                                                               Colors.deepPurple,
+//                                                         ),
+//                                                         SizedBox(
+//                                                           height: 10,
+//                                                         ),
+//                                                         Row(
+//                                                           mainAxisAlignment:
+//                                                               MainAxisAlignment
+//                                                                   .spaceAround,
+//                                                           children: [
+//                                                             Card(
+//                                                               color:
+//                                                                   Colors.white,
+//                                                               child: Column(
+//                                                                 children: [
+//                                                                   ElevatedButton(
+//                                                                       onPressed:
+//                                                                           () {
+//                                                                         Clipboard.setData(ClipboardData(
+//                                                                             text:
+//                                                                                 data['location']));
+
+//                                                                         ScaffoldMessenger.of(context)
+//                                                                             .showSnackBar(
+//                                                                           SnackBar(
+//                                                                               content: Text(
+//                                                                             ' تم نسخ احداثيات عائلة ${data['family_name']}',
+//                                                                             textAlign:
+//                                                                                 TextAlign.center,
+//                                                                           )),
+//                                                                         );
+//                                                                       },
+//                                                                       child:
+//                                                                           Icon(
+//                                                                         Icons
+//                                                                             .copy,
+//                                                                         color: Colors
+//                                                                             .green,
+//                                                                       ),
+//                                                                       style: ButtonStyle(
+//                                                                           elevation:
+//                                                                               MaterialStateProperty.all<double?>(0.0))),
+//                                                                   Text(
+//                                                                       'copy  map')
+//                                                                 ],
+//                                                               ),
+//                                                             ),
+//                                                           ],
+//                                                         ),
+//                                                         SizedBox(
+//                                                           height: 10,
+//                                                         ),
+//                                                         Container(
+//                                                           height: 2,
+//                                                           width:
+//                                                               double.infinity,
+//                                                           color:
+//                                                               Colors.deepPurple,
+//                                                         ),
+//                                                         SizedBox(
+//                                                           height: 10,
+//                                                         ),
+//                                                       ],
+//                                                     ),
+//                                                     actions: [
+//                                                       ElevatedButton(
+//                                                         child: Text("الرجوع"),
+//                                                         onPressed: () {
+//                                                           Navigator.of(context)
+//                                                               .pop();
+//                                                         },
+//                                                       ),
+//                                                     ],
+//                                                   );
+//                                                 },
+//                                               );
